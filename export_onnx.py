@@ -10,7 +10,7 @@ from ade20k import ADE20KSeg
 model_name="deeplabv3plus_mobilenet"
 weights="checkpoints/best_deeplabv3plus_mobilenet_ade_os8.pth"
 onnx_output_path=weights.replace(".pth",".onnx")
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu' if torch.cuda.is_available() else 'cpu')
 # 假设你有一个准备好的PyTorch模型
 model = network.modeling.__dict__[model_name](num_classes=3, output_stride=8)
 # network.convert_to_separable_conv(model.classifier)
@@ -27,7 +27,7 @@ torch.onnx.export(model,               # 模型的实例
                   x,                   # 模型的输入
                   onnx_output_path,        # 导出的ONNX模型的文件名
                   export_params=True,  # 是否导出模型参数
-                  opset_version=11,    # ONNX操作集版本
+                  opset_version=13,    # ONNX操作集版本
                   do_constant_folding=True,  # 是否进行常量折叠
                   input_names = ['input'],   # 模型输入的名称
                   output_names = ['output'], # 模型输出的名称

@@ -41,8 +41,9 @@ if __name__=="__main__":
     #                     input_size_list=[[1,3,224,224]])
     # rknn.load_onnx(model="/data/cv/rknn_deploy/rknn-toolkit2/rknn-toolkit2/examples/onnx/yolov5/yolov5s_relu.onnx")
     rknn.load_onnx(model=src_model_path)
-    # rknn.build(do_quantization=True,
-    #            dataset="images/imglist.txt")
+    rknn.build(do_quantization=False,
+            #    dataset="images/imglist.txt"
+               )
     rknn.export_rknn("{}.rknn".format(src_model_path.split(".")[0]))
 
     # Init runtime environment
