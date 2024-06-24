@@ -8,7 +8,7 @@ import time
 
 
 
-def image_preprocess(image,is_normalize=True):
+def image_preprocess(image,is_normalize=False):
     """
     image:PIL，HWC
     output:NCHW，normalized between (0,1)
@@ -29,10 +29,13 @@ if __name__=="__main__":
     #mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225]
     IMG_PATH="data/image.png"
     src_model_path="checkpoints/best_deeplabv3plus_mobilenet_ade_os8.onnx"
-
+    mean_values=[0.485, 0.456, 0.406]
+    std_values=[0.229, 0.224, 0.225]
+    mean_values=[x*255 for x in mean_values]
+    std_values=[x*255 for x in std_values]
     rknn=RKNN(verbose=True,verbose_file='checkpoints/to_rknn.log')
-    rknn.config(mean_values=[[0.485, 0.456, 0.406]],
-            std_values=[[0.229, 0.224, 0.225]],
+    rknn.config(mean_values=[mean_values],
+            std_values=[std_values],
                 target_platform="rk3588")
     # rknn.load_pytorch(model="/data/cv/object_track/models/yolov8n.pt",
     #                     input_size_list=[[1,3,224,224]])

@@ -31,8 +31,11 @@ torch.onnx.export(model,               # 模型的实例
                   do_constant_folding=True,  # 是否进行常量折叠
                   input_names = ['input'],   # 模型输入的名称
                   output_names = ['output'], # 模型输出的名称
-                  dynamic_axes={'input' : {0: "batch", 2: "height", 3: "width"},    # 动态轴
-                                'output' : {0: "batch", 2: "mask_height", 3: "mask_width"}})
+                #   dynamic_axes={'input' : {0: "batch", 2: "height", 3: "width"},    # 动态轴
+                #                 'output' : {0: "batch", 2: "mask_height", 3: "mask_width"}}
+                    # dynamic_axes={'input' : {0: "batch"},    # 动态轴
+                    #                 'output' : {0: "batch"}}
+                                )
 
 
 # def export_onnx(model, im, file, opset, dynamic, simplify, prefix=colorstr("ONNX:")):
