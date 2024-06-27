@@ -9,6 +9,10 @@ from ade20k import ADE20KSeg
 
 model_name="deeplabv3plus_mobilenet"
 weights="checkpoints/best_deeplabv3plus_mobilenet_ade_os8.pth"
+
+# model_name="deeplabv3plus_resnet50"
+# weights="checkpoints/best_deeplabv3plus_resnet50_ade_os8.pth"
+
 onnx_output_path=weights.replace(".pth",".onnx")
 device = torch.device('cpu' if torch.cuda.is_available() else 'cpu')
 # 假设你有一个准备好的PyTorch模型
