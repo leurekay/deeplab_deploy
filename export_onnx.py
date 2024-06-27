@@ -3,6 +3,7 @@ import torch.onnx
 import network
 import onnx
 from ade20k import ADE20KSeg
+import time
 
 
 
@@ -23,6 +24,7 @@ checkpoint = torch.load(weights, map_location=device)
 model.load_state_dict(checkpoint["model_state"])
 model.to(device)
 model = model.eval()
+print(model)
 
 # 准备一个输入样本
 x = torch.randn(1, 3, 480, 640)
@@ -42,57 +44,21 @@ torch.onnx.export(model,               # 模型的实例
                     #                 'output' : {0: "batch"}}
                                 )
 onnx.checker.check_model(onnx_output_path)
+time.sleep(2)
+
+import onnx.utils
+
+# 加载完整的 ONNX 模型
+model = onnx.load(onnx_output_path)
+print(onnx.helper.printable_graph(model.graph))
 
 
-# def export_onnx(model, im, file, opset, dynamic, simplify, prefix=colorstr("ONNX:")):
-#     """Exports a YOLOv5 model to ONNX format with dynamic axes and optional simplification."""
-#     import onnx
+# 定义起始层和结束层的名字
+input_layer = ['input']  # 起始层名称，通常是模型输入
+output_layer = ['/backbone/layer4/layer4.2/relu_2/Relu_output_0']  # 结束层名称
 
-#     f = str(file.with_suffix(".onnx"))
+# 提取子模型
+sub_model_path = onnx_output_path.replace(".onnx","_sub.onnx")
+onnx.utils.extract_model(onnx_output_path, sub_model_path, input_layer, output_layer)
 
-#     output_names = ["output0", "output1"] if isinstance(model, SegmentationModel) else ["output0"]
-#     if dynamic:
-#         dynamic = {"images": {0: "batch", 2: "height", 3: "width"}}  # shape(1,3,640,640)
-#         if isinstance(model, SegmentationModel):
-#             dynamic["output0"] = {0: "batch", 1: "anchors"}  # shape(1,25200,85)
-#             dynamic["output1"] = {0: "batch", 2: "mask_height", 3: "mask_width"}  # shape(1,32,160,160)
-#         elif isinstance(model, DetectionModel):
-#             dynamic["output0"] = {0: "batch", 1: "anchors"}  # shape(1,25200,85)
-
-#     torch.onnx.export(
-#         model.cpu() if dynamic else model,  # --dynamic only compatible with cpu
-#         im.cpu() if dynamic else im,
-#         f,
-#         verbose=False,
-#         opset_version=opset,
-#         do_constant_folding=True,  # WARNING: DNN inference with torch>=1.12 may require do_constant_folding=False
-#         input_names=["images"],
-#         output_names=output_names,
-#         dynamic_axes=dynamic or None,
-#     )
-
-#     # Checks
-#     model_onnx = onnx.load(f)  # load onnx model
-#     onnx.checker.check_model(model_onnx)  # check onnx model
-
-#     # Metadata
-#     d = {"stride": int(max(model.stride)), "names": model.names}
-#     for k, v in d.items():
-#         meta = model_onnx.metadata_props.add()
-#         meta.key, meta.value = k, str(v)
-#     onnx.save(model_onnx, f)
-
-#     # Simplify
-#     if simplify:
-#         try:
-#             cuda = torch.cuda.is_available()
-#             check_requirements(("onnxruntime-gpu" if cuda else "onnxruntime", "onnx-simplifier>=0.4.1"))
-#             import onnxsim
-
-#             LOGGER.info(f"{prefix} simplifying with onnx-simplifier {onnxsim.__version__}...")
-#             model_onnx, check = onnxsim.simplify(model_onnx)
-#             assert check, "assert check failed"
-#             onnx.save(model_onnx, f)
-#         except Exception as e:
-#             LOGGER.info(f"{prefix} simplifier failure: {e}")
-#     return f, model_onnx
+print(f"Extracted ONNX sub-model has been saved to {sub_model_path}")
