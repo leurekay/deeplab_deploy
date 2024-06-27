@@ -1,7 +1,7 @@
 import torch
 import torch.onnx
 import network
-
+import onnx
 from ade20k import ADE20KSeg
 
 
@@ -22,6 +22,7 @@ model = network.modeling.__dict__[model_name](num_classes=3, output_stride=8)
 checkpoint = torch.load(weights, map_location=device)
 model.load_state_dict(checkpoint["model_state"])
 model.to(device)
+model = model.eval()
 
 # 准备一个输入样本
 x = torch.randn(1, 3, 480, 640)
@@ -40,6 +41,7 @@ torch.onnx.export(model,               # 模型的实例
                     # dynamic_axes={'input' : {0: "batch"},    # 动态轴
                     #                 'output' : {0: "batch"}}
                                 )
+onnx.checker.check_model(onnx_output_path)
 
 
 # def export_onnx(model, im, file, opset, dynamic, simplify, prefix=colorstr("ONNX:")):
