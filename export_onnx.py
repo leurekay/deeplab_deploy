@@ -9,7 +9,7 @@ import time
 
 
 model_name="deeplabv3plus_mobilenet"
-weights="checkpoints/best_deeplabv3plus_mobilenet_ade_os8.pth"
+weights="checkpoints/nointerpolate_deeplabv3plus_mobilenet_ade_os8.pth"
 
 # model_name="deeplabv3plus_resnet50"
 # weights="checkpoints/best_deeplabv3plus_resnet50_ade_os8.pth"
@@ -55,7 +55,7 @@ print(onnx.helper.printable_graph(model.graph))
 
 # 定义起始层和结束层的名字
 input_layer = ['input']  # 起始层名称，通常是模型输入
-output_layer = ['/backbone/high_level_features/high_level_features.17/conv/conv.2/Conv_output_0']  # 结束层名称
+output_layer = ['/classifier/classifier/classifier.3/Conv_output_0']  # 结束层名称
 
 # 提取子模型
 sub_model_path = onnx_output_path.replace(".onnx","_sub.onnx")

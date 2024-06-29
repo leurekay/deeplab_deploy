@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from .utils import _SimpleSegmentationModel
+from .custom_operator import FixedDeconv
 
 
 __all__ = ["DeepLabV3"]
@@ -43,12 +44,16 @@ class DeepLabHeadV3Plus(nn.Module):
             nn.Conv2d(256, num_classes, 1)
         )
         self._init_weight()
+        self.fixed_deconv = FixedDeconv(256, 256,stride=2)
 
     def forward(self, feature):
         low_level_feature = self.project( feature['low_level'] )
         output_feature = self.aspp(feature['out'])
-        output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
-        # print("----------output_feature.shape",output_feature.shape)
+        print("----------output_feature.shape",output_feature.shape)
+        print("===========low_level_feature.shape[2:]",low_level_feature.shape[2:])
+        # output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
+        output_feature=self.fixed_deconv(output_feature)
+        
         ret= self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
         # print("----------ret.shape",ret.shape)
         return ret
@@ -130,6 +135,9 @@ class ASPPPooling(nn.Sequential):
     def forward(self, x):
         size = x.shape[-2:]
         x = super(ASPPPooling, self).forward(x)
+        print("*********  x.shape",x.shape)
+        print("*********  size",size)
+
         return F.interpolate(x, size=size, mode='bilinear', align_corners=False)
 
 class ASPP(nn.Module):
@@ -146,12 +154,12 @@ class ASPP(nn.Module):
         modules.append(ASPPConv(in_channels, out_channels, rate1))
         modules.append(ASPPConv(in_channels, out_channels, rate2))
         modules.append(ASPPConv(in_channels, out_channels, rate3))
-        modules.append(ASPPPooling(in_channels, out_channels))
+        # modules.append(ASPPPooling(in_channels, out_channels))
 
         self.convs = nn.ModuleList(modules)
 
         self.project = nn.Sequential(
-            nn.Conv2d(5 * out_channels, out_channels, 1, bias=False),
+            nn.Conv2d(4 * out_channels, out_channels, 1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Dropout(0.1),)
