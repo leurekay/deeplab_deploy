@@ -29,7 +29,7 @@ if __name__=="__main__":
     #mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225]
     IMG_PATH="data/image.png"
     # src_model_path="checkpoints/best_deeplabv3plus_mobilenet_ade_os8.onnx"
-    src_model_path="checkpoints/best_deeplabv3plus_mobilenet_ade_os8_sub.onnx"
+    src_model_path="checkpoints/nointerpolate_deeplabv3plus_mobilenet_ade_os8_sub.onnx"
     mean_values=[0.485, 0.456, 0.406]
     std_values=[0.229, 0.224, 0.225]
     mean_values=[x*255 for x in mean_values]
@@ -43,7 +43,7 @@ if __name__=="__main__":
     # rknn.load_onnx(model="/data/cv/rknn_deploy/rknn-toolkit2/rknn-toolkit2/examples/onnx/yolov5/yolov5s_relu.onnx")
     rknn.load_onnx(model=src_model_path)
     rknn.build(do_quantization=False,
-            #    dataset="images/imglist.txt"
+            #    dataset="data/imglist.txt"
                )
     rknn.export_rknn("{}.rknn".format(src_model_path.split(".")[0]))
 
@@ -68,6 +68,7 @@ if __name__=="__main__":
         # Set inputs
     
     img = cv2.imread(IMG_PATH)
+    img = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
     img_new=image_preprocess(img)
 
     # Inference
