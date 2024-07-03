@@ -52,8 +52,9 @@ if __name__=="__main__":
     resized_image = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
     t1=time.time()
     for i in range(N):
-        mask =segrknn.predict(img)
+        ret =segrknn.predict(img)
     t2=time.time()
     print("average time : {} s/image".format((t2-t1)/N))
+    print(ret[0].shape)
         
     segrknn.rknn.release()

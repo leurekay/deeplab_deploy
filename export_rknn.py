@@ -56,9 +56,9 @@ if __name__=="__main__":
                             # core_mask=RKNN.NPU_CORE_0_1_2,
                             eval_mem=True
                             )
-    # rknn.eval_perf(inputs=[IMG_PATH],
-    #                data_format=None,
-    #                is_print=True)
+    rknn.eval_perf(inputs=[IMG_PATH],
+                   data_format=None,
+                   is_print=True)
     # rknn.eval_memory(is_print=True)
     # if ret != 0:
     #     print('Init runtime environment failed!')
